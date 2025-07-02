@@ -81,16 +81,22 @@ function App() {
       // Set progress to 100%
       setUploadProgress(prev => ({ ...prev, [progressKey]: 100 }))
 
-      // Get public URL
+      // Get public URL with download option set to false
       const { data: urlData } = supabase.storage
         .from('campaigns')
-        .getPublicUrl(path)
+        .getPublicUrl(path, {
+          download: false
+        })
 
       if (!urlData?.publicUrl) {
         throw new Error('Failed to get public URL for uploaded file')
       }
 
-      return urlData.publicUrl
+      // Construct the public URL manually if needed
+      const publicUrl = urlData.publicUrl || 
+        `${supabase.storage.url}/object/public/campaigns/${path}`
+      
+      return publicUrl
     } catch (error) {
       console.error(`Error uploading ${progressKey}:`, error)
       throw error
